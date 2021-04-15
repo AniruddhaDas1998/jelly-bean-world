@@ -173,7 +173,11 @@ class MapVisualizer(object):
             self._ax_agent.add_collection(PatchCollection(patches, match_original=True))
 
         self._pause(1.0e-16)
+
+        # save the figure
+        self.ctr += 1
         plt.savefig('{}/vis_step_{}'.format(self.SAVE_DIR, self.ctr))
+
         plt.draw()
         self._xlim = self._ax.get_xlim()
         self._ylim = self._ax.get_ylim()
