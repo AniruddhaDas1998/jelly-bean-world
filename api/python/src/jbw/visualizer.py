@@ -49,7 +49,7 @@ def agent_position(direction):
         return (-0.1, 0), 3*pi/2
 
 class MapVisualizer(object):
-    def __init__(self, sim, sim_config, bottom_left, top_right, show_agent_perspective=True):
+    def __init__(self, sim, sim_config, bottom_left, top_right, show_agent_perspective=True, SAVE_DIR='./render_folder'):
         global _FIGURE_COUNTER
         if not modules_loaded:
             raise ImportError("numpy and matplotlib are required to use MapVisualizer.")
@@ -73,6 +73,7 @@ class MapVisualizer(object):
 
         # used for saving the renderings
         self.ctr = 0
+        self.SAVE_DIR = SAVE_DIR
 
     def __del__(self):
         plt.close(self._fig)
@@ -172,7 +173,7 @@ class MapVisualizer(object):
             self._ax_agent.add_collection(PatchCollection(patches, match_original=True))
 
         self._pause(1.0e-16)
-        plt.savefig('vis_step_{}'.format(self.ctr))
+        plt.savefig('{}/vis_step_{}'.format(self.SAVE_DIR, self.ctr))
         plt.draw()
         self._xlim = self._ax.get_xlim()
         self._ylim = self._ax.get_ylim()
