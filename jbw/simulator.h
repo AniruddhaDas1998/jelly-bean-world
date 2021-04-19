@@ -426,7 +426,7 @@ inline bool write(const action_policy& type, Stream& out) {
 }
 
 /**
- * Represents the configuration of a simulator. 
+ * Represents the configuration of a simulator.
  */
 struct simulator_config {
     /* agent capabilities */
@@ -1111,7 +1111,7 @@ inline status init(
 }
 
 /**
- * Reads the given agent_state `agent` from the input stream `in`. 
+ * Reads the given agent_state `agent` from the input stream `in`.
  */
 template<typename Stream>
 inline bool read(agent_state& agent, Stream& in, const simulator_config& config)
@@ -1151,7 +1151,7 @@ inline bool read(agent_state& agent, Stream& in, const simulator_config& config)
 }
 
 /**
- * Writes the given agent_state `agent` to the output stream `out`. 
+ * Writes the given agent_state `agent` to the output stream `out`.
  */
 template<typename Stream>
 inline bool write(const agent_state& agent, Stream& out, const simulator_config& config)
@@ -1443,6 +1443,7 @@ public:
         new_agent_id = id_counter;
         if (new_agent == nullptr) {
             simulator_lock.unlock();
+            fprintf(stderr, "simulator.add_agent ERROR: OUT_OF_MEMORY.\n");
             return status::OUT_OF_MEMORY;
         }
 
@@ -1450,6 +1451,7 @@ public:
         if (init_status != status::OK) {
             core::free(new_agent);
             simulator_lock.unlock();
+            fprintf(stderr, "simulator.add_agent ERROR: init_status != status::OK.\n");
             return init_status;
         }
         agents.table.keys[bucket] = id_counter;
@@ -2247,7 +2249,7 @@ private:
  * `data`.
  */
 template<typename SimulatorData>
-status init(simulator<SimulatorData>& sim, 
+status init(simulator<SimulatorData>& sim,
         const simulator_config& config,
         const SimulatorData& data,
         uint_fast32_t seed)
@@ -2294,7 +2296,7 @@ status init(simulator<SimulatorData>& sim,
  * `data`.
  */
 template<typename SimulatorData>
-inline status init(simulator<SimulatorData>& sim, 
+inline status init(simulator<SimulatorData>& sim,
         const simulator_config& config,
         const SimulatorData& data)
 {
