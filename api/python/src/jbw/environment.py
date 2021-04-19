@@ -82,7 +82,7 @@ class JBWEnv(gym.Env):
     """
 
     def __init__(
-        self, sim_config, reward_fn, render=False):
+        self, sim_config, reward_fn, render=False, num_agents=1):
       """Creates a new JBW environment for OpenAI gym.
 
       Arguments:
@@ -105,38 +105,45 @@ class JBWEnv(gym.Env):
       self._reward_fn = reward_fn
       self._render = render
 
+      # track number of agents in the environment
+      self.num_agents = num_agents
+
       self.reset()
 
-      # Computing shapes for the observation space.
-      scent_shape = [len(self.sim_config.items[0].scent)]
-      vision_dim = len(self.sim_config.items[0].color)
-      vision_range = self.sim_config.vision_range
-      vision_shape = [
-        2 * vision_range + 1,
-        2 * vision_range + 1,
-        vision_dim]
+      if self.num_agents == 1:
+        # Computing shapes for the observation space.
+        scent_shape = [len(self.sim_config.items[0].scent)]
+        vision_dim = len(self.sim_config.items[0].color)
+        vision_range = self.sim_config.vision_range
+        vision_shape = [
+          2 * vision_range + 1,
+          2 * vision_range + 1,
+          vision_dim]
 
-      min_float = np.finfo(np.float32).min
-      max_float = np.finfo(np.float32).max
-      min_scent = min_float * np.ones(scent_shape)
-      max_scent = max_float * np.ones(scent_shape)
-      min_vision = min_float * np.ones(vision_shape)
-      max_vision = max_float * np.ones(vision_shape)
+        min_float = np.finfo(np.float32).min
+        max_float = np.finfo(np.float32).max
+        min_scent = min_float * np.ones(scent_shape)
+        max_scent = max_float * np.ones(scent_shape)
+        min_vision = min_float * np.ones(vision_shape)
+        max_vision = max_float * np.ones(vision_shape)
 
-      # Observations in this environment consist of a scent
-      # vector, a vision matrix, and a binary value
-      # indicating whether the last action resulted in the
-      # agent moving.
-      self.observation_space = spaces.Dict({
-        'scent': spaces.Box(low=min_scent, high=max_scent),
-        'vision': spaces.Box(low=min_vision, high=max_vision),
-        'moved': spaces.Discrete(2)})
+        # Observations in this environment consist of a scent
+        # vector, a vision matrix, and a binary value
+        # indicating whether the last action resulted in the
+        # agent moving.
+        self.observation_space = spaces.Dict({
+          'scent': spaces.Box(low=min_scent, high=max_scent),
+          'vision': spaces.Box(low=min_vision, high=max_vision),
+          'moved': spaces.Discrete(2)})
 
-      # There are three possible actions:
-      #   1. Move forward,
-      #   2. Turn left,
-      #   3. Turn right.
-      self.action_space = spaces.Discrete(3)
+        # There are three possible actions:
+        #   1. Move forward,
+        #   2. Turn left,
+        #   3. Turn right.
+        self.action_space = spaces.Discrete(3)
+
+      else:
+        # TODO
 
     def step(self, action):
       """Runs a simulation step.
@@ -163,39 +170,54 @@ class JBWEnv(gym.Env):
             which is always `False` for this environment.
         info (dict): Empty dictionary.
       """
-      prev_position = self._agent.position()
-      prev_items = self._agent.collected_items()
+      if self.num_agents == 1:
+        prev_position = self._agent.position()
+        prev_items = self._agent.collected_items()
 
-      self._agent._next_action = action
-      self._agent.do_next_action()
+        self._agent._next_action = action
+        self._agent.do_next_action()
 
-      position = self._agent.position()
-      items = self._agent.collected_items()
-      reward = self._reward_fn(prev_items, items)
-      done = False
+        position = self._agent.position()
+        items = self._agent.collected_items()
+        reward = self._reward_fn(prev_items, items)
+        done = False
 
-      self.state = {
-        'scent': self._agent.scent(),
-        'vision': self._agent.vision(),
-        'moved': np.any(prev_position != position)}
+        self.state = {
+          'scent': self._agent.scent(),
+          'vision': self._agent.vision(),
+          'moved': np.any(prev_position != position)}
 
-      return self.state, reward, done, {}
+        return self.state, reward, done, {}
+
+      else:
+        # TODO
+        pass
 
     def reset(self):
       """Resets this environment to its initial state."""
-      del self._sim
-      self._sim = Simulator(sim_config=self.sim_config)
-      self._agent = _JBWEnvAgent(self._sim)
-      if self._render:
-        del self._painter
-        self._painter = MapVisualizer(
-          self._sim, self.sim_config,
-          bottom_left=(-70, -70), top_right=(70, 70))
-      self.state = {
-        'scent': self._agent.scent(),
-        'vision': self._agent.vision(),
-        'moved': False}
-      return self.state
+      if self.num_agents == 1:
+        del self._sim
+        self._sim = Simulator(sim_config=self.sim_config)
+
+        # currently only a single agent is being created/used
+        self._agent = _JBWEnvAgent(self._sim)
+
+        if self._render:
+          del self._painter
+          self._painter = MapVisualizer(
+            self._sim, self.sim_config,
+            bottom_left=(-70, -70), top_right=(70, 70),
+            show_agent_perspective=True
+          )
+        self.state = {
+          'scent': self._agent.scent(),
+          'vision': self._agent.vision(),
+          'moved': False}
+        return self.state
+
+      else:
+        # TODO
+        pass
 
     def render(self, mode='matplotlib'):
       """Renders this environment in its current state.
@@ -230,7 +252,7 @@ class JBWEnv(gym.Env):
       self.reset()
       return
 
-
+# this class seems multiagent safe
 class _JBWEnvAgent(Agent):
   """Helper class for the JBW environment, that represents
   a JBW agent living in the simulator.

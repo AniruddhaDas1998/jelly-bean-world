@@ -22,6 +22,7 @@ __all__ = ['AddAgentError', 'Agent']
 class AddAgentError(Exception):
   pass
 
+# this class seems multiagent safe
 class Agent(object):
   __metaclass__ = abc.ABCMeta
 

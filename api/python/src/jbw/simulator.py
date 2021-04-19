@@ -121,8 +121,8 @@ class SimulatorConfig(object):
 class Simulator(object):
   """Environment simulator.
 
-  All agents live within a simulated environment. Therefore, in order to create 
-  agents, users must always first create a simulator and provide it to the 
+  All agents live within a simulated environment. Therefore, in order to create
+  agents, users must always first create a simulator and provide it to the
   agent's constructor.
   """
 
@@ -204,10 +204,13 @@ class Simulator(object):
     self._save_frequency = save_frequency
     self._client_id = 0
     self.agents = dict()
+    # TODO: maybe use this callback? Doesn't seem to be required though
+    # especially in single agent setting -- to update agent attributes
     if on_step_callback == None:
       self._on_step = lambda *args: None
     else:
       self._on_step = on_step_callback
+
     if on_lost_connection_callback == None:
       on_lost_connection_callback = lambda *args: None
 
@@ -317,8 +320,8 @@ class Simulator(object):
   def move(self, agent, direction, num_steps=1):
     """Moves the specified agent in the simulated environment.
 
-    Note that the agent is not moved until the simulator advances by a 
-    time step and issues a notification about that event. The simulator 
+    Note that the agent is not moved until the simulator advances by a
+    time step and issues a notification about that event. The simulator
     only advances the time step once all agents have requested to move.
 
     Arguments:
@@ -335,8 +338,8 @@ class Simulator(object):
   def turn(self, agent, direction):
     """Turns the specified agent in the simulated environment.
 
-    Note that the agent is not turned until the simulator advances by a 
-    time step and issues a notification about that event. The simulator 
+    Note that the agent is not turned until the simulator advances by a
+    time step and issues a notification about that event. The simulator
     only advances the time step once all agents have requested to perform an
     action.
 
@@ -392,6 +395,9 @@ class Simulator(object):
                     governed by other clients.
     """
     self._time += 1
+    # TODO: this seems multiagent safe assuming -- Definitely check
+    # agent_states is as expected -- updates agent attributes
+    # seemingly called from within the C version of simulator - simulator.h
     for agent_state in agent_states:
       (position, direction, scent, vision, items, id) = agent_state
       agent = self.agents[id]

@@ -90,6 +90,8 @@ class MapVisualizer(object):
         self._ax.clear()
         self._ax.set_xlim(self._xlim)
         self._ax.set_ylim(self._ylim)
+
+        # this section seems multi-agent friendly
         for patch in map:
             (patch_position, fixed, scent, vision, items, agents) = patch
             color = (0, 0, 0, 0.3) if fixed else (0, 0, 0, 0.1)
@@ -111,6 +113,7 @@ class MapVisualizer(object):
             self._ax.add_collection(horizontal_line_col)
 
             patches = []
+            # this section seems multi-agent friendly
             for agent in agents:
                 (agent_pos, angle) = agent_position(Direction(agent[2]))
                 patches.append(RegularPolygon((agent[0] + agent_pos[0], agent[1] + agent_pos[1]), 3,
@@ -135,8 +138,10 @@ class MapVisualizer(object):
             self._ax.add_collection(PatchCollection(patches, match_original=True))
 
         # draw the agent's perspective
+        # TODO: maybe use the 'show_agent_perspective' variable
         if self._ax_agent != None and len(self._sim.agents) > 0:
             agent_ids = sorted(self._sim.agents.keys())
+            # TODO: this looks like it only draws a single agents perspective.
             agent = self._sim.agents[agent_ids[0]]
             R = self._config.vision_range
             self._ax_agent.clear()
