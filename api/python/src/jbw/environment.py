@@ -144,6 +144,7 @@ class JBWEnv(gym.Env):
 
       else:
         # TODO
+        pass
 
     def step(self, action):
       """Runs a simulation step.
