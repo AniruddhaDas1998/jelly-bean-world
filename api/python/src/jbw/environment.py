@@ -143,8 +143,40 @@ class JBWEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
 
       else:
-        # TODO
-        pass
+        # TODO -- done: no changes from single agent case
+        # currently, all agents have the same parameters. Will have
+        # to treat them differently once the observations are obtaiend
+
+        # Computing shapes for the observation space.
+        scent_shape = [len(self.sim_config.items[0].scent)]
+        vision_dim = len(self.sim_config.items[0].color)
+        vision_range = self.sim_config.vision_range
+        vision_shape = [
+          2 * vision_range + 1,
+          2 * vision_range + 1,
+          vision_dim]
+
+        min_float = np.finfo(np.float32).min
+        max_float = np.finfo(np.float32).max
+        min_scent = min_float * np.ones(scent_shape)
+        max_scent = max_float * np.ones(scent_shape)
+        min_vision = min_float * np.ones(vision_shape)
+        max_vision = max_float * np.ones(vision_shape)
+
+        # Observations in this environment consist of a scent
+        # vector, a vision matrix, and a binary value
+        # indicating whether the last action resulted in the
+        # agent moving.
+        self.observation_space = spaces.Dict({
+          'scent': spaces.Box(low=min_scent, high=max_scent),
+          'vision': spaces.Box(low=min_vision, high=max_vision),
+          'moved': spaces.Discrete(2)})
+
+        # There are three possible actions:
+        #   1. Move forward,
+        #   2. Turn left,
+        #   3. Turn right.
+        self.action_space = spaces.Discrete(3)
 
     def step(self, action):
       """Runs a simulation step.
@@ -192,7 +224,35 @@ class JBWEnv(gym.Env):
 
       else:
         # TODO
-        pass
+        DONE = False
+        reward_list = []
+        self.state = []
+
+        # ensure that the order of action and agents is identical
+        for _agent, a in zip(self._agents, action):
+          prev_position = _agent.position()
+          prev_items = _agent.collected_items()
+
+          _agent._next_action = a
+          _agent.do_next_action()
+
+          position = _agent.position()
+          items = _agent.collected_items()
+          reward = self._reward_fn(prev_items, items)
+
+          # this is really just a placeholder
+          # the agents are never really done due to the neverending environment
+          DONE = DONE or False
+          reward_list = reward_list.append(reward)
+
+          # list of states for each agent
+          self.state.append({
+            'scent': _agent.scent(),
+            'vision': _agent.vision(),
+            'moved': np.any(prev_position != position)}
+          )
+
+        return self.state, reward_list, DONE, {}
 
     def reset(self):
       """Resets this environment to its initial state."""
@@ -217,8 +277,28 @@ class JBWEnv(gym.Env):
         return self.state
 
       else:
-        # TODO
-        pass
+        # TODO -- done
+        del self._sim
+        self._sim = Simulator(sim_config=self.sim_config)
+
+        # create num_agents agents
+        self._agents = [_JBWEnvAgent(self._sim) for i in range(self.num_agents)]
+
+        if self._render:
+          del self._painter
+          self._painter = MapVisualizer(
+            self._sim, self.sim_config,
+            bottom_left=(-70, -70), top_right=(70, 70),
+            show_agent_perspective=True
+          )
+
+        # return a list of states where each state corresponds to an agent
+        self.state = [{
+                  'scent': _agent.scent(),
+                  'vision': _agent.vision(),
+                  'moved': False
+                } for _agent in self._agents]
+        return self.state
 
     def render(self, mode='matplotlib'):
       """Renders this environment in its current state.
