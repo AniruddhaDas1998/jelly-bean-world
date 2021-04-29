@@ -216,7 +216,7 @@ else:
             'Invalid rendering mode "%s". '
             'Only "matplotlib" is supported.')
 
-      def update_render(render_val):
+      def update_render(self, render_val):
         if self._render != render_val:
           # implies the value of render is being updated to something different
           if render_val:
