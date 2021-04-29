@@ -229,6 +229,8 @@ else:
           else:
             del self._painter
 
+          self._render = render_val
+
       def close(self):
         """Deletes the underlying simulator and deallocates
         all associated memory. This environment cannot be used
