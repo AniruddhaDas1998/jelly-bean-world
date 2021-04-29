@@ -217,19 +217,18 @@ else:
             'Only "matplotlib" is supported.')
 
       def update_render(self, render_val):
-        if self._render != render_val:
-          # implies the value of render is being updated to something different
-          if render_val:
-            # implies the environment will start rendering now
-            del self._painter
-            self._painter = MapVisualizer(
-              self._sim, self.sim_config,
-              bottom_left=(-70, -70), top_right=(70, 70)
-            )
-          else:
-            del self._painter
 
-          self._render = render_val
+        if render_val:
+          # implies the environment will start rendering now
+          del self._painter
+          self._painter = MapVisualizer(
+            self._sim, self.sim_config,
+            bottom_left=(-70, -70), top_right=(70, 70)
+          )
+        else:
+          del self._painter
+
+        self._render = render_val
 
       def close(self):
         """Deletes the underlying simulator and deallocates
