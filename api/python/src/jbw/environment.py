@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-"""OpenAI gym environment implementation for the JBW 
+"""OpenAI gym environment implementation for the JBW
 simulator."""
 
 from __future__ import absolute_import, division, print_function
@@ -46,17 +46,17 @@ else:
         - `2`: Turn right.
 
       The observation space consists of a dictionary:
-        - `scent`: Vector with shape `[S]`, where `S` is the 
+        - `scent`: Vector with shape `[S]`, where `S` is the
           scent dimensionality.
-        - `vision`: Matrix with shape `[2R+1, 2R+1, V]`, 
-          where `R` is the vision range and `V` is the 
+        - `vision`: Matrix with shape `[2R+1, 2R+1, V]`,
+          where `R` is the vision range and `V` is the
           vision/color dimensionality.
-        - `moved`: Binary value indicating whether the last 
+        - `moved`: Binary value indicating whether the last
           action resulted in the agent moving.
 
-      After following the instructions provided in the main 
-      `README` file to install the `jbw` framework, and 
-      installing `gym` using `pip install gym`, this 
+      After following the instructions provided in the main
+      `README` file to install the `jbw` framework, and
+      installing `gym` using `pip install gym`, this
       environment can be used as follows:
 
       ```
@@ -67,7 +67,7 @@ else:
       # Otherwise, use 'JBW-v0', which should be much faster.
       env = gym.make('JBW-render-v0')
 
-      # The created environment can then be used as any other 
+      # The created environment can then be used as any other
       # OpenAI gym environment. For example:
       for t in range(10000):
         # Render the current environment.
@@ -86,15 +86,15 @@ else:
         Arguments:
           sim_config(SimulatorConfig) Simulator configuration
                                       to use.
-          reward_fn(callable)         Function that takes the 
-                                      previously collected 
-                                      items and the current 
+          reward_fn(callable)         Function that takes the
+                                      previously collected
+                                      items and the current
                                       collected items as inputs
-                                      and returns a reward 
+                                      and returns a reward
                                       value.
-          render(bool)                Boolean value indicating 
-                                      whether or not to support 
-                                      rendering the 
+          render(bool)                Boolean value indicating
+                                      whether or not to support
+                                      rendering the
                                       environment.
         """
         self.sim_config = sim_config
@@ -110,8 +110,8 @@ else:
         vision_dim = len(self.sim_config.items[0].color)
         vision_range = self.sim_config.vision_range
         vision_shape = [
-          2 * vision_range + 1, 
-          2 * vision_range + 1, 
+          2 * vision_range + 1,
+          2 * vision_range + 1,
           vision_dim]
 
         min_float = np.finfo(np.float32).min
@@ -121,12 +121,12 @@ else:
         min_vision = min_float * np.ones(vision_shape)
         max_vision = max_float * np.ones(vision_shape)
 
-        # Observations in this environment consist of a scent 
-        # vector, a vision matrix, and a binary value 
-        # indicating whether the last action resulted in the 
+        # Observations in this environment consist of a scent
+        # vector, a vision matrix, and a binary value
+        # indicating whether the last action resulted in the
         # agent moving.
         self.observation_space = spaces.Dict({
-          'scent': spaces.Box(low=min_scent, high=max_scent), 
+          'scent': spaces.Box(low=min_scent, high=max_scent),
           'vision': spaces.Box(low=min_vision, high=max_vision),
           'moved': spaces.Discrete(2)})
 
@@ -147,17 +147,17 @@ else:
 
         Returns:
           observation (dictionary): Contains:
-              - `scent`: Vector with shape `[S]`, where `S` 
+              - `scent`: Vector with shape `[S]`, where `S`
                 is the scent dimensionality.
-              - `vision`: Matrix with shape 
-                `[2R+1, 2R+1, V]`, where `R` is the vision 
-                range and `V` is the vision/color 
+              - `vision`: Matrix with shape
+                `[2R+1, 2R+1, V]`, where `R` is the vision
+                range and `V` is the vision/color
                 dimensionality.
-              - `moved`: Binary value indicating whether the 
+              - `moved`: Binary value indicating whether the
                 last action resulted in the agent moving.
-          reward (float): Amount of reward obtained from the 
+          reward (float): Amount of reward obtained from the
               last action.
-          done (bool): Whether or not the episode has ended 
+          done (bool): Whether or not the episode has ended
               which is always `False` for this environment.
           info (dict): Empty dictionary.
         """
@@ -173,8 +173,8 @@ else:
         done = False
 
         self.state = {
-          'scent': self._agent.scent(), 
-          'vision': self._agent.vision(), 
+          'scent': self._agent.scent(),
+          'vision': self._agent.vision(),
           'moved': np.any(prev_position != position)}
 
         return self.state, reward, done, {}
@@ -187,22 +187,22 @@ else:
         if self._render:
           del self._painter
           self._painter = MapVisualizer(
-            self._sim, self.sim_config, 
+            self._sim, self.sim_config,
             bottom_left=(-70, -70), top_right=(70, 70))
         self.state = {
-          'scent': self._agent.scent(), 
-          'vision': self._agent.vision(), 
+          'scent': self._agent.scent(),
+          'vision': self._agent.vision(),
           'moved': False}
         return self.state
 
       def render(self, mode='matplotlib'):
         """Renders this environment in its current state.
-         Note that, in order to support rendering, 
-        `render=True` must be passed to the environment 
+         Note that, in order to support rendering,
+        `render=True` must be passed to the environment
         constructor.
 
         Arguments:
-          mode(str) Rendering mode. Currently, only 
+          mode(str) Rendering mode. Currently, only
                     `"matplotlib"` is supported.
         """
         if mode == 'matplotlib' and self._render:
@@ -216,8 +216,21 @@ else:
             'Invalid rendering mode "%s". '
             'Only "matplotlib" is supported.')
 
+      def update_render(render_val):
+        if self._render != render_val:
+          # implies the value of render is being updated to something different
+          if render_val:
+            # implies the environment will start rendering now
+            del self._painter
+            self._painter = MapVisualizer(
+              self._sim, self.sim_config,
+              bottom_left=(-70, -70), top_right=(70, 70)
+            )
+          else:
+            del self._painter
+
       def close(self):
-        """Deletes the underlying simulator and deallocates 
+        """Deletes the underlying simulator and deallocates
         all associated memory. This environment cannot be used
         again after it's been closed."""
         del self._sim
@@ -236,7 +249,7 @@ class _JBWEnvAgent(Agent):
 
   def __init__(self, simulator):
     """Creates a new JBW environment agent.
-    
+
     Arguments:
       simulator(Simulator)  The simulator the agent lives in.
     """
@@ -253,7 +266,7 @@ class _JBWEnvAgent(Agent):
       self.turn(RelativeDirection.RIGHT)
     else:
       logger.warn(
-        'Ignoring invalid action %d.' 
+        'Ignoring invalid action %d.'
         % self._next_action)
 
   # There is no need for saving and loading an agent's
