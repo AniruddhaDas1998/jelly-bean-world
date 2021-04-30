@@ -227,6 +227,7 @@ else:
           )
         else:
           del self._painter
+          self._painter = None
 
         self._render = render_val
 
