@@ -22,6 +22,8 @@ from utils import window_plot, create_gif
 # RL-Training code is adapted from
 # https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 
+# THIS REQUIRES THE INITIAL PYTHON SETUP OUTLINED IN: https://github.com/eaplatanios/jelly-bean-world
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_env(env_type='JBW-v0', config=None, reward_fn=lambda prev_items, items: sum(items) - sum(prev_items)):
