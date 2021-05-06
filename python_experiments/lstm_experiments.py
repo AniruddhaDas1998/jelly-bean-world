@@ -402,7 +402,7 @@ action_dist = np.zeros((env.action_space.n))
 # NOTE: env.render() is a very slow function
 env.update_render(True)
 
-print('Starting unrolling with gradient updates')
+print('Starting unrolling with gradient updates and rendering')
 
 for i_step in range(SIM_STEPS):
 
@@ -470,3 +470,6 @@ print('Completed unrolling with gradient updates and rendering')
 ################################################################################
 ################################ SAVE FINAL MODEL ##############################
 ################################################################################
+
+torch.save(policy_net.state_dict(), './lstm_jbw')
+# policy_net.load_state_dict(torch.load('./lstm_jbw'))
