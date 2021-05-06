@@ -407,7 +407,7 @@ print('Starting unrolling with gradient updates and rendering')
 for i_step in range(SIM_STEPS):
 
     if (i_step+1) % 100 == 0:
-      print('Completed step {}/{} with R_MEAN: {}'.format(i_step+1, NUM_STEPS, R_MEAN))
+      print('Completed step {}/{} with R_MEAN: {}'.format(i_step+1, SIM_STEPS, R_MEAN))
 
     # TODO fix and pass in actual moved parameter -- if required
     # Moved is not being used right now
