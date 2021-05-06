@@ -35,7 +35,7 @@ def get_env(env_type='JBW-v0', config=None, reward_fn=lambda prev_items, items: 
     return gym.make(env_type, sim_config=config, reward_fn=reward_fn, render=True)
 
 REWARD_FN = avoid_onion()
-config = make_config()
+config = make_config('uniform')
 
 env = get_env(reward_fn=REWARD_FN, config=config)
 
