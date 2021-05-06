@@ -211,6 +211,8 @@ WINDOW_SIZE = 100000
 
 LSTM_INPUTS = LSTM_INIT
 
+print('Starting training')
+
 for i_step in range(NUM_STEPS):
 
     if DONE:
@@ -334,6 +336,8 @@ action_dist = np.zeros(env.action_space.n)
 # don't reset to init since we're continuing from earlier environment state
 # LSTM_INPUTS = LSTM_INIT
 
+print('Starting unrolling with no gradient updates')
+
 for i_step in range(UNROLL_STEPS):
 
     if (i_step+1)%50000 == 0:
@@ -395,6 +399,8 @@ action_dist = np.zeros((env.action_space.n))
 # we need to still call env.render() for every rendering
 # NOTE: env.render() is a very slow function
 env.update_render(True)
+
+print('Starting unrolling with gradient updates')
 
 for i_step in range(SIM_STEPS):
 
@@ -458,3 +464,7 @@ for i_step in range(SIM_STEPS):
         print('Done\n')
 
 print('Completed unrolling with gradient updates and rendering')
+
+################################################################################
+################################ SAVE FINAL MODEL ##############################
+################################################################################
