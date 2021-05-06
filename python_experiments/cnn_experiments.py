@@ -301,7 +301,7 @@ for i_step in range(NUM_STEPS):
     )
 
     # Store the transition in memory
-    memory.push(state, action, next_state, reward, LSTM_INPUTS)
+    memory.push(state, action, next_state, reward)
 
     # Move to the next state
     state = next_state
@@ -471,7 +471,7 @@ for i_step in range(SIM_STEPS):
     )
 
     # Store the transition in memory
-    memory.push(state, action, next_state, reward, LSTM_INPUTS)
+    memory.push(state, action, next_state, reward)
 
     # Move to the next state
     state = next_state
