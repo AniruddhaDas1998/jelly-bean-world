@@ -93,12 +93,12 @@ class MapVisualizer(object):
         agent = self._sim.agents[agent_ids[0]]
         agentx, agenty = agent.position()
         # check if OOB then update limits
-        if agentx >= self.x_lim[1] or agentx <= self.x_lim[0] or agenty >= self.y_lim[1] or agenty <= self.y_lim[0]:
+        if agentx >= self._xlim[1] or agentx <= self._xlim[0] or agenty >= self._ylim[1] or agenty <= self._ylim[0]:
             # => agent is OOB
-            x_diff = (self.x_lim[1]-self.x_lim[0])//2
-            y_diff = (self.y_lim[1]-self.y_lim[0])//2
-            self.x_lim = [agentx-x_diff, agentx+x_diff]
-            self.y_lim = [agenty-y_diff, agenty+y_diff]
+            x_diff = (self._xlim[1]-self._xlim[0])//2
+            y_diff = (self._ylim[1]-self._ylim[0])//2
+            self._xlim = [agentx-x_diff, agentx+x_diff]
+            self._ylim = [agenty-y_diff, agenty+y_diff]
 
         map = self._sim._map((int(floor(self._xlim[0])), int(floor(self._ylim[0]))), (int(ceil(self._xlim[1])), int(ceil(self._ylim[1]))))
 
