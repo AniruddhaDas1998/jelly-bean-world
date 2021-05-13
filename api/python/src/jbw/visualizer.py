@@ -85,7 +85,23 @@ class MapVisualizer(object):
     def draw(self):
         if not plt.fignum_exists(self._fignum):
             raise MapVisualizerError('The figure is closed')
+
+        # TODO so that visualization is re-centered about the agent if OOB
+        # used to center overhead view of the environment
+        # NOTE: This is not multiagent safe as it takes the first sorted agent
+        agent_ids = sorted(self._sim.agents.keys())
+        agent = self._sim.agents[agent_ids[0]]
+        agentx, agenty = agent.position()
+        # check if OOB then update limits
+        if agentx >= self.x_lim[1] or agentx <= self.x_lim[0] or agenty >= self.y_lim[1] or agenty <= self.y_lim[0]:
+            # => agent is OOB
+            x_diff = (self.x_lim[1]-self.x_lim[0])//2
+            y_diff = (self.y_lim[1]-self.y_lim[0])//2
+            self.x_lim = [agentx-x_diff, agentx+x_diff]
+            self.y_lim = [agenty-y_diff, agenty+y_diff]
+
         map = self._sim._map((int(floor(self._xlim[0])), int(floor(self._ylim[0]))), (int(ceil(self._xlim[1])), int(ceil(self._ylim[1]))))
+
         n = self._config.patch_size
         self._ax.clear()
         self._ax.set_xlim(self._xlim)
